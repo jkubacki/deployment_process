@@ -7,17 +7,13 @@ tags() {
 newest_tag() {
   tags | tail -1
 }
-
-previous_tag() {
-  tags | tail -2 | head -1
-}
-
-commits_between_tags() {
-  git rev-list $(previous_tag)..$(newest_tag) --pretty
+commits_between_latest_tag_and_master() {
+  echo previous_tag
+  git rev-list $(newest_tag)..master --pretty
 }
 
 jira_tickets_ids_between_tags() {
-  commits_between_tags | grep -Eo "JC-[0-9]+" | sort | uniq -i
+  commits_between_latest_tag_and_master | grep -Eo "JC-[0-9]+" | sort | uniq -i
 }
 
 print_deployed_tickets() {
@@ -48,15 +44,17 @@ log() {
 
 git tag | xargs git tag -d # delete local tags
 
-git checkout release
-git pull origin release --tags
+git checkout master
+git pull origin master --tags
 
 echo "Latest tag: $(newest_tag)"
 
 echo "Provide new tag:"
 read new_tag
 
-git tag $new_tag
+git tag $new_tag -m "Deploy $(date +'%Y-%m-%d')
+$(print_deployed_tickets)"
+
 git push origin $new_tag
 
 ########################
@@ -65,64 +63,34 @@ git push origin $new_tag
 
 git checkout production
 git pull origin production --tags
-git rebase release
+git rebase master
 git push origin production
 
 ########################
 #### MANUAL ACTIONS ####
 ########################
 
-log "Deployed tickets"
-print_deployed_tickets
-echo "Number of tickets: $(print_deployed_tickets | wc -l)"
-
-
-log "Prepare milestone and release"
-echo "1. Close old milestone, and create new one: "
-echo " * https://github.com/jkubacki/deployment_process/milestones"
-echo " * name: $(date +'%Y-%m-%d') deployment"
-echo " * description: should include link to release"
-echo
-echo "2. Create new release:"
-echo " * https://github.com/jkubacki/deployment_process/releases/new"
-echo " * title: current tag ($new_tag)"
-echo " * description: should include milestone link"
-echo " * description: should include deployed tickets (listed above)"
-echo " * make sure deployed tickets are the same in milestone as in release (reverts can cause mismatches)"
-
-
-log "Slack"
-echo "1. Write on slack:"
-echo
-echo "Deploying production"
-echo "https://www.youtube.com/watch?v=DhlPAj38rHc"
-
-
 log "CircleCI"
-echo "1. Wait for CircleCI, before proceeding: https://circleci.com/gh/jkubacki/deployment_process/tree/production"
+echo "Wait for CircleCI, before proceeding: https://circleci.com/gh/jkubacki/deployment_process/tree/production"
 
 
-log "Perform all release tasks"
-cat ./RELEASE_TODO
+# log "Perform all release tasks"
+# cat ./RELEASE_TODO
 
 
-log "Check services"
-echo "1. Monit: http://185.14.156.134:2812/"
-echo "2. NewRelic: https://rpm.newrelic.com/accounts/55907/applications/1835988"
-echo "3. Sidekiq: https://tutor24.ch/admin/sidekiq/busy?poll=true"
-echo "4. Tutor24: https://tutor24.ch/"
+log "Check the app"
+echo "https://beta.jaacoo.com/"
 
 
 log "Notify others about finished deployment"
-echo "1. Write on Slack info about finished deployment, and include changes: https://github.com/jkubacki/deployment_process/releases"
-echo "2. Increment deployment counter"
+echo "Write on Slack: 'Deployment finished: https://github.com/jkubacki/deployment_process/releases'"
 
 ########################
 ###### CLEAN UP ########
 ########################
 
-git checkout master
-cat RELEASE_TODO_TEMPLATE > RELEASE_TODO
-git add RELEASE_TODO
-git commit -m "Clean up RELEASE_TODO file"
-git push origin master
+# git checkout master
+# cat RELEASE_TODO_TEMPLATE > RELEASE_TODO
+# git add RELEASE_TODO
+# git commit -m "Clean up RELEASE_TODO file"
+# git push origin master
