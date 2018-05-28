@@ -89,7 +89,7 @@ echo "Write on Slack: 'Deployment finished: https://github.com/jkubacki/deployme
 ###### CLEAN UP ########
 ########################
 
-# git checkout master
+git checkout master
 # cat RELEASE_TODO_TEMPLATE > RELEASE_TODO
 # git add RELEASE_TODO
 # git commit -m "Clean up RELEASE_TODO file"
