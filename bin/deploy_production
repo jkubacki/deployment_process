@@ -103,9 +103,10 @@ log "CircleCI"
 echo "Wait for CircleCI, before proceeding:"
 echo "https://circleci.com/gh/$(origin_url)/tree/production"
 
-
-# log "Perform all release tasks"
-# cat ./RELEASE_TODO
+if [ -s ./RELEASE_TODO ]
+  log "Perform release tasks"
+  cat ./RELEASE_TODO
+fi
 
 
 log "Check the app"
@@ -121,9 +122,14 @@ log "$new_tag release completed"
 ########################
 ###### CLEAN UP ########
 ########################
+if [ -s ./RELEASE_TODO ]
+  git checkout -b clean-up-release-todo
+  > RELEASE_TODO
+  git add RELEASE_TODO
+  git commit -m "Clean up RELEASE_TODO"
+  git push -u origin clean-up-release-todo
+  echo "Create pull request to clean RELEASE_TODO"
+  echo "https://github.com/$(origin_url)/compare/clean-up-release-todo?expand=1"
+fi
 
 git checkout master
-# cat RELEASE_TODO_TEMPLATE > RELEASE_TODO
-# git add RELEASE_TODO
-# git commit -m "Clean up RELEASE_TODO file"
-# git push origin master
