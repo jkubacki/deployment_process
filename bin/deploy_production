@@ -124,6 +124,7 @@ git checkout production
 git pull origin production --tags
 git rebase master
 git push origin production
+git checkout master
 
 ########################
 #### MANUAL ACTIONS ####
@@ -160,10 +161,9 @@ then
   git add RELEASE_TODO
   git commit -m "Clean up RELEASE_TODO"
   git push -u origin clean-up-release-todo
+  git checkout master
   echo "Create pull request to clean RELEASE_TODO"
   echo "https://github.com/$(origin_url)/compare/clean-up-release-todo?expand=1"
 fi
-
-git checkout master
 
 log "$new_tag release completed"
