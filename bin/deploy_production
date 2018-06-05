@@ -24,10 +24,6 @@ origin_url() {
   git remote get-url origin |  sed -e's/git@github.com://' -e's/\.git$//'
 }
 
-git_username() {
-  git config user.email
-}
-
 log() {
   text=$1
 
@@ -86,8 +82,7 @@ echo "Provide new tag:"
 read new_tag
 
 git tag $new_tag -m "Deploy $(date +'%Y-%m-%d')
-$(print_deployed_tickets)
-$(git_username)"
+$(print_deployed_tickets)"
 
 git push origin $new_tag
 
@@ -119,10 +114,9 @@ echo "https://beta.jaacoo.com/"
 
 log "Notify others about finished deployment"
 echo "Write on Slack:"
-echo "Deployment finished: https://github.com/$(origin_url)/releases/tag/$(new_tag)"
-echo ""
+echo "Deployment finished: https://github.com/$(origin_url)/releases/tag/$new_tag"
 
-log "$(new_tag) release completed"
+log "$new_tag release completed"
 
 ########################
 ###### CLEAN UP ########
