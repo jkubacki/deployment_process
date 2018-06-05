@@ -24,6 +24,34 @@ origin_url() {
   git remote get-url origin |  sed -e's/git@github.com://' -e's/\.git$//'
 }
 
+require_clean_work_tree () {
+    # Update the index
+    git update-index -q --ignore-submodules --refresh
+    err=0
+
+    # Disallow unstaged changes in the working tree
+    if ! git diff-files --quiet --ignore-submodules --
+    then
+        echo >&2 "you have unstaged changes."
+        git diff-files --name-status -r --ignore-submodules -- >&2
+        err=1
+    fi
+
+    # Disallow uncommitted changes in the index
+    if ! git diff-index --cached --quiet HEAD --ignore-submodules --
+    then
+        echo >&2 "your index contains uncommitted changes."
+        git diff-index --cached --name-status -r --ignore-submodules HEAD -- >&2
+        err=1
+    fi
+
+    if [ $err = 1 ]
+    then
+        echo >&2 "Please commit or stash them."
+        exit 1
+    fi
+}
+
 log() {
   text=$1
 
@@ -46,25 +74,27 @@ log() {
 #### PREREQUSITES ######
 ########################
 
+require_clean_work_tree
+
 read -p "Did you inform #project-jaacoo about deployment? (y/n)" -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
-    exit 1
+  exit 1
 fi
 
 read -p "Did you get green light from QAs? (y/n)" -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
-    exit 1
+  exit 1
 fi
 
 read -p "Did you make sure that changes will work with current production api/frontend? (y/n)" -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
-    exit 1
+  exit 1
 fi
 
 ########################
@@ -104,6 +134,7 @@ echo "Wait for CircleCI, before proceeding:"
 echo "https://circleci.com/gh/$(origin_url)/tree/production"
 
 if [ -s ./RELEASE_TODO ]
+then
   log "Perform release tasks"
   cat ./RELEASE_TODO
 fi
@@ -117,12 +148,12 @@ log "Notify others about finished deployment"
 echo "Write on Slack:"
 echo "Deployment finished: https://github.com/$(origin_url)/releases/tag/$new_tag"
 
-log "$new_tag release completed"
-
 ########################
 ###### CLEAN UP ########
 ########################
 if [ -s ./RELEASE_TODO ]
+then
+  log "Clean up RELEASE_TODO"
   git checkout -b clean-up-release-todo
   > RELEASE_TODO
   git add RELEASE_TODO
@@ -133,3 +164,5 @@ if [ -s ./RELEASE_TODO ]
 fi
 
 git checkout master
+
+log "$new_tag release completed"
