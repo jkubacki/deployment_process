@@ -20,6 +20,10 @@ print_deployed_tickets() {
   jira_tickets_ids_between_tags | awk '{ print "https://netguru.atlassian.net/browse/"$0 }'
 }
 
+origin_url() {
+  git remote get-url origin |  sed -e's/git@github.com://' -e's/\.git$//'
+}
+
 log() {
   text=$1
 
@@ -97,7 +101,7 @@ git push origin production
 
 log "CircleCI"
 echo "Wait for CircleCI, before proceeding:"
-echo "https://circleci.com/gh/jkubacki/deployment_process/tree/production"
+echo "https://circleci.com/gh/$(origin_url)/tree/production"
 
 
 # log "Perform all release tasks"
@@ -110,7 +114,7 @@ echo "https://beta.jaacoo.com/"
 
 log "Notify others about finished deployment"
 echo "Write on Slack:"
-echo "Deployment finished: https://github.com/jkubacki/deployment_process/releases"
+echo "Deployment finished: https://github.com/$(origin_url)/releases"
 
 ########################
 ###### CLEAN UP ########
