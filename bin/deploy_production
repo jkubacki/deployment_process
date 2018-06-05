@@ -155,13 +155,13 @@ echo "Deployment finished: https://github.com/$(origin_url)/releases/tag/$new_ta
 if [ -s ./RELEASE_TODO ]
 then
   log "Clean up RELEASE_TODO"
-  git branch -d clean-up-release-todo
   git checkout -b clean-up-release-todo
   > RELEASE_TODO
   git add RELEASE_TODO
   git commit -m "Clean up RELEASE_TODO"
   git push -u origin clean-up-release-todo
   git checkout master
+  git branch -d clean-up-release-todo
   echo "Create pull request to clean RELEASE_TODO"
   echo "https://github.com/$(origin_url)/compare/clean-up-release-todo?expand=1"
 fi
