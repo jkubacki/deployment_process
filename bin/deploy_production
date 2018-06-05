@@ -24,6 +24,10 @@ origin_url() {
   git remote get-url origin |  sed -e's/git@github.com://' -e's/\.git$//'
 }
 
+git_username() {
+  git config user.email
+}
+
 log() {
   text=$1
 
@@ -82,7 +86,8 @@ echo "Provide new tag:"
 read new_tag
 
 git tag $new_tag -m "Deploy $(date +'%Y-%m-%d')
-$(print_deployed_tickets)"
+$(print_deployed_tickets)
+$(git_username)"
 
 git push origin $new_tag
 
