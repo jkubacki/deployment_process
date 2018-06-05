@@ -154,6 +154,7 @@ echo "Deployment finished: https://github.com/$(origin_url)/releases/tag/$new_ta
 if [ -s ./RELEASE_TODO ]
 then
   log "Clean up RELEASE_TODO"
+  git branch -d clean-up-release-todo
   git checkout -b clean-up-release-todo
   > RELEASE_TODO
   git add RELEASE_TODO
