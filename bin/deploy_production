@@ -119,7 +119,10 @@ echo "https://beta.jaacoo.com/"
 
 log "Notify others about finished deployment"
 echo "Write on Slack:"
-echo "Deployment finished: https://github.com/$(origin_url)/releases"
+echo "Deployment finished: https://github.com/$(origin_url)/releases/tag/$(new_tag)"
+echo ""
+
+log "$(new_tag) release completed"
 
 ########################
 ###### CLEAN UP ########
